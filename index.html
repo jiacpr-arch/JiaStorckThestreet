@@ -514,13 +514,12 @@
         </p>
 
         <div class="form-control">
-          <label>Web App URL</label>
-          <input type="text" id="gs-url" placeholder="https://script.google.com/macros/s/.../exec" style="font-family:monospace;font-size:12px;">
+          <label>Web App URL <span style="font-size:11px;color:var(--text-muted);font-weight:400;">— บันทึกอัตโนมัติเมื่อใส่</span></label>
+          <input type="text" id="gs-url" oninput="autoSaveGsUrl(this.value)" placeholder="https://script.google.com/macros/s/.../exec" style="font-family:monospace;font-size:12px;">
         </div>
 
         <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
           <button class="btn btn-outline" onclick="testGsConnection()">🔌 ทดสอบการเชื่อมต่อ</button>
-          <button class="btn btn-primary" onclick="saveGsUrl()">💾 บันทึก URL</button>
           <button class="btn btn-outline" onclick="pushToSheets()" style="border-color:var(--success);color:var(--success);">⬆️ Push ข้อมูลปัจจุบันไป Google Sheets</button>
           <button class="btn btn-outline" onclick="pullFromSheets()" style="border-color:var(--primary);color:var(--primary);">⬇️ Pull ข้อมูลจาก Google Sheets</button>
         </div>
@@ -535,6 +534,18 @@
             • จำนวนสินค้า: <span id="gs-product-count">0</span> รายการ<br>
             • <span id="gs-sync-mode-info">⚪ ยังไม่ได้ตั้งค่า URL — ข้อมูลจะเก็บใน browser เท่านั้น</span>
           </div>
+        </div>
+      </div>
+
+      <!-- Restore images -->
+      <div class="card" style="margin-top:16px;">
+        <h3 style="margin:0 0 14px;font-size:16px;">🖼️ จัดการรูปสินค้า</h3>
+        <p style="color:var(--text-muted);font-size:13px;margin-bottom:14px;">
+          ถ้ารูปสินค้าหาย (แสดง emoji แทน) กดปุ่มนี้เพื่อกู้รูปจาก default (จากไฟล์ Excel เดิม)
+        </p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <button class="btn btn-primary" onclick="restoreImages()">🖼️ Restore รูปสินค้าทั้งหมด</button>
+          <span id="img-status" style="font-size:12px;color:var(--text-muted);"></span>
         </div>
       </div>
 
@@ -1845,17 +1856,26 @@ function renderSettings() {
   }
 }
 
-function saveGsUrl() {
-  const url = document.getElementById('gs-url').value.trim();
-  if (!url) { showToast('กรุณาใส่ URL', 'error'); return; }
-  if (!url.startsWith('https://script.google.com/')) {
-    showToast('URL ไม่ถูกต้อง — ต้องเริ่มด้วย https://script.google.com/', 'error');
-    return;
-  }
-  localStorage.setItem(GS_URL_KEY, url);
-  showToast('✅ บันทึก URL แล้ว', 'success');
-  renderSettings();
-  setSyncStatus('idle');
+let _urlSaveTimer = null;
+function autoSaveGsUrl(value) {
+  if (_urlSaveTimer) clearTimeout(_urlSaveTimer);
+  _urlSaveTimer = setTimeout(() => {
+    const url = (value || '').trim();
+    if (!url) {
+      localStorage.removeItem(GS_URL_KEY);
+      setSyncStatus('idle');
+      renderSettings();
+      return;
+    }
+    if (!url.startsWith('https://script.google.com/')) {
+      // Don't save invalid URLs silently
+      return;
+    }
+    localStorage.setItem(GS_URL_KEY, url);
+    showToast('💾 บันทึก URL แล้ว', 'success');
+    setSyncStatus('idle', 'Saved — ready to sync');
+    renderSettings();
+  }, 500);
 }
 
 function showGsStatus(msg, type) {
@@ -1989,7 +2009,16 @@ async function pullFromSheets() {
   try {
     const data = await gsCall('getAll');
     if (data.products) {
-      products = data.products;
+      // Merge pulled data with defaults — restore imageUrl if missing
+      const pulledMap = Object.fromEntries(data.products.map(p => [p.id, p]));
+      products = DEFAULT_PRODUCTS.map(d => {
+        if (!pulledMap[d.id]) return d;
+        const merged = { ...d, ...pulledMap[d.id] };
+        if (!merged.imageUrl && d.imageUrl) merged.imageUrl = d.imageUrl;
+        return merged;
+      });
+      // Add products that are only in pulled data (user-added)
+      data.products.forEach(p => { if (!products.find(x => x.id === p.id)) products.push(p); });
       history = data.history || [];
       _originalSaveData();
       localStorage.setItem(GS_LAST_SYNC, new Date().toISOString());
@@ -2045,6 +2074,28 @@ async function autoSyncIfEnabled(force) {
       setSyncStatus('error', 'Network: ' + err.message.substring(0,30));
     }
   }, 1500);
+}
+
+function restoreImages() {
+  // Map default products by id
+  const defMap = Object.fromEntries(DEFAULT_PRODUCTS.map(d => [d.id, d]));
+  let restored = 0;
+  products.forEach(p => {
+    const d = defMap[p.id];
+    if (d && d.imageUrl && (!p.imageUrl || p.imageUrl !== d.imageUrl)) {
+      p.imageUrl = d.imageUrl;
+      restored++;
+    }
+  });
+  if (restored === 0) {
+    document.getElementById('img-status').textContent = '✓ ทุกรายการมีรูปครบแล้ว';
+    showToast('ไม่มีรูปที่ต้องกู้ — ทุกรายการครบแล้ว', 'success');
+    return;
+  }
+  saveData();
+  populateSelects(); renderProducts(); updateDashboard();
+  document.getElementById('img-status').textContent = `✅ กู้รูปสำเร็จ ${restored} รายการ`;
+  showToast(`✅ Restore รูปสำเร็จ ${restored} รายการ`, 'success');
 }
 
 function downloadBackup() {
