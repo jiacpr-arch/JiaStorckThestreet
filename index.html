@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบสต๊อกสินค้า — บริษัท เจี๋ยรักษา</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef2f1;
+  --surface:#ffffff;
+  --surface-2:#f6f9f8;
+  --ink:#16241f;
+  --ink-soft:#5a6b65;
+  --line:#dde5e2;
+  --line-strong:#c6d2ce;
+  --primary:#0d7a6e;
+  --primary-d:#0a5a51;
+  --primary-l:#e3f1ee;
+  --ok:#1f9d5b;
+  --ok-bg:#e6f5ec;
+  --low:#c9810a;
+  --low-bg:#fbf0db;
+  --out:#cf3a3a;
+  --out-bg:#fbe6e6;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --radius:14px;
+  --shadow:0 1px 2px rgba(16,40,34,.04),0 8px 24px -16px rgba(16,40,34,.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'IBM Plex Sans Thai',system-ui,-apple-system,'Segoe UI',sans-serif;
+  background:var(--bg);color:var(--ink);
+  -webkit-font-smoothing:antialiased;font-size:15px;line-height:1.5;
+}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:15px}
+.hidden{display:none !important}
+.mono{font-family:var(--mono)}
+
+/* ---------- LOGIN ---------- */
+#login{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(1200px 600px at 80% -10%,rgba(13,122,110,.18),transparent),
+    radial-gradient(900px 500px at -10% 110%,rgba(13,122,110,.12),transparent),
+    var(--bg);
+  padding:20px;z-index:50;
+}
+.login-card{
+  width:100%;max-width:380px;background:var(--surface);border:1px solid var(--line);
+  border-radius:22px;padding:36px 32px;box-shadow:var(--shadow);
+}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.brand .logo{
+  width:48px;height:48px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--primary),var(--primary-d));color:#fff;
+  font-size:24px;flex:none;
+}
+.brand h1{font-size:18px;margin:0;line-height:1.2}
+.brand p{font-size:12.5px;color:var(--ink-soft);margin:2px 0 0}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink-soft)}
+.field input,.field select,.field textarea{
+  width:100%;padding:11px 13px;border:1px solid var(--line-strong);border-radius:10px;
+  background:var(--surface-2);color:var(--ink);transition:border-color .15s,box-shadow .15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-l);background:#fff;
+}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:11px 16px;border-radius:10px;border:1px solid transparent;font-weight:600;font-size:14.5px;
+  background:var(--surface-2);color:var(--ink);transition:background .15s,border-color .15s,transform .05s;
+}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--primary);color:#fff}
+.btn.primary:hover{background:var(--primary-d)}
+.btn.ghost{background:transparent;border-color:var(--line-strong)}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.danger{background:var(--out);color:#fff}
+.btn.danger:hover{filter:brightness(.93)}
+.btn.sm{padding:7px 11px;font-size:13px;border-radius:8px}
+.btn.block{width:100%}
+.login-err{color:var(--out);font-size:13px;margin-top:4px;min-height:18px}
+.login-hint{margin-top:18px;font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.6}
+
+/* ---------- APP SHELL ---------- */
+#app{min-height:100vh;display:flex;flex-direction:column}
+.topbar{
+  position:sticky;top:0;z-index:30;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-in{max-width:1180px;margin:0 auto;padding:11px 20px;display:flex;align-items:center;gap:16px}
+.topbar .logo{
+  width:36px;height:36px;border-radius:10px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--primary),var(--primary-d));color:#fff;font-size:18px;flex:none;
+}
+.topbar .title{font-weight:700;font-size:15.5px;white-space:nowrap}
+.topbar .title small{display:block;font-weight:500;font-size:11.5px;color:var(--ink-soft)}
+.nav{display:flex;gap:4px;margin-left:8px}
+.nav button{
+  border:none;background:transparent;padding:8px 14px;border-radius:9px;font-weight:600;
+  color:var(--ink-soft);font-size:14px;
+}
+.nav button.active{background:var(--primary-l);color:var(--primary-d)}
+.nav button:hover:not(.active){background:var(--surface-2)}
+.topbar .spacer{flex:1}
+.who{font-size:13px;color:var(--ink-soft);display:flex;align-items:center;gap:9px}
+.who .dot{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+
+.main{max-width:1180px;margin:0 auto;padding:24px 20px 60px;width:100%}
+.page-head{display:flex;align-items:flex-end;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.page-head h2{margin:0;font-size:22px;letter-spacing:-.3px}
+.page-head p{margin:3px 0 0;color:var(--ink-soft);font-size:13.5px}
+
+/* ---------- DASHBOARD ---------- */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.stat{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;
+  box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.stat .k{font-size:12.5px;color:var(--ink-soft);font-weight:600;display:flex;align-items:center;gap:7px}
+.stat .v{font-size:28px;font-weight:700;margin-top:8px;letter-spacing:-.5px;font-family:var(--mono)}
+.stat .sub{font-size:12px;color:var(--ink-soft);margin-top:2px}
+.stat .ic{position:absolute;right:14px;top:14px;font-size:22px;opacity:.5}
+.stat.accent{border-color:var(--primary);background:linear-gradient(135deg,var(--primary),var(--primary-d));color:#fff}
+.stat.accent .k,.stat.accent .sub{color:rgba(255,255,255,.8)}
+.stat.warn .v{color:var(--low)}
+.stat.bad .v{color:var(--out)}
+
+.cols{display:grid;grid-template-columns:1.2fr 1fr;gap:18px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.panel-h{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.panel-h h3{margin:0;font-size:15px}
+.panel-h .count{font-size:12px;color:var(--ink-soft);font-weight:600}
+.panel-body{padding:6px 0}
+.empty{padding:34px 18px;text-align:center;color:var(--ink-soft);font-size:13.5px}
+
+.li{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--surface-2)}
+.li:last-child{border-bottom:none}
+.li .ava{width:38px;height:38px;border-radius:9px;background:var(--surface-2);display:grid;place-items:center;font-size:19px;flex:none;overflow:hidden}
+.li .ava img{width:100%;height:100%;object-fit:cover}
+.li .meta{flex:1;min-width:0}
+.li .meta .nm{font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .meta .sk{font-size:11.5px;color:var(--ink-soft);font-family:var(--mono)}
+.li .right{text-align:right;flex:none}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.pill.low{background:var(--low-bg);color:var(--low)}
+.pill.out{background:var(--out-bg);color:var(--out)}
+.hist-line{font-size:11.5px;color:var(--ink-soft)}
+.hist-q{font-family:var(--mono);font-weight:600}
+.hist-q.in{color:var(--ok)}
+.hist-q.out{color:var(--out)}
+
+/* ---------- PRODUCTS TOOLBAR ---------- */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.search{position:relative;flex:1;min-width:200px}
+.search input{width:100%;padding:10px 12px 10px 36px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface)}
+.search input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-l)}
+.search .si{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink-soft);font-size:15px}
+.toolbar select{padding:10px 12px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);color:var(--ink)}
+.toolbar select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-l)}
+.viewtoggle{display:flex;border:1px solid var(--line-strong);border-radius:10px;overflow:hidden;background:var(--surface)}
+.viewtoggle button{border:none;background:transparent;padding:9px 13px;font-size:16px;color:var(--ink-soft)}
+.viewtoggle button.active{background:var(--primary-l);color:var(--primary-d)}
+
+/* ---------- TABLE VIEW ---------- */
+.tablewrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead th{
+  text-align:left;font-size:11.5px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.4px;
+  padding:12px 14px;background:var(--surface-2);border-bottom:1px solid var(--line);white-space:nowrap;
+}
+thead th.num,tbody td.num{text-align:right}
+thead th.ctr,tbody td.ctr{text-align:center}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--surface-2);vertical-align:middle}
+tbody tr:hover{background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:none}
+.cell-prod{display:flex;align-items:center;gap:11px;min-width:220px}
+.cell-prod .ava{width:40px;height:40px;border-radius:9px;background:var(--surface-2);display:grid;place-items:center;font-size:20px;flex:none;overflow:hidden}
+.cell-prod .ava img{width:100%;height:100%;object-fit:cover}
+.cell-prod .nm{font-weight:600;font-size:13.5px;line-height:1.3}
+.cell-prod .sk{font-size:11px;color:var(--ink-soft);font-family:var(--mono)}
+.cat-tag{font-size:11.5px;color:var(--ink-soft);white-space:nowrap}
+.qty-big{font-family:var(--mono);font-weight:700;font-size:15px}
+.row-actions{display:flex;gap:5px;justify-content:flex-end;white-space:nowrap}
+.iconbtn{
+  width:30px;height:30px;border-radius:8px;border:1px solid var(--line-strong);background:var(--surface);
+  display:grid;place-items:center;font-size:14px;color:var(--ink-soft);transition:.12s;
+}
+.iconbtn:hover{background:var(--surface-2);color:var(--ink);border-color:var(--line-strong)}
+.iconbtn.in:hover{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.iconbtn.out:hover{background:var(--low-bg);color:var(--low);border-color:var(--low)}
+.iconbtn.del:hover{background:var(--out-bg);color:var(--out);border-color:var(--out)}
+.serial-flag{font-size:10px;font-weight:700;color:var(--primary-d);background:var(--primary-l);padding:1px 6px;border-radius:5px;margin-left:6px}
+
+/* ---------- CARD VIEW ---------- */
+.cardgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+.pcard .thumb{height:120px;background:var(--surface-2);display:grid;place-items:center;font-size:48px;position:relative;overflow:hidden}
+.pcard .thumb img{width:100%;height:100%;object-fit:cover}
+.pcard .thumb .stbadge{position:absolute;top:9px;right:9px}
+.pcard .body{padding:13px 14px;flex:1;display:flex;flex-direction:column}
+.pcard .nm{font-weight:600;font-size:14px;line-height:1.35;margin-bottom:3px}
+.pcard .sk{font-size:11px;color:var(--ink-soft);font-family:var(--mono);margin-bottom:9px}
+.pcard .figs{display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto}
+.pcard .figs .q{font-family:var(--mono);font-weight:700;font-size:20px}
+.pcard .figs .q small{font-size:11px;color:var(--ink-soft);font-weight:500;font-family:'IBM Plex Sans Thai'}
+.pcard .figs .pr{font-size:13px;color:var(--ink-soft);font-family:var(--mono)}
+.pcard .cardacts{display:flex;gap:6px;padding:0 14px 13px}
+.pcard .cardacts .btn{flex:1}
+
+/* ---------- PAGINATION ---------- */
+.pager{display:flex;align-items:center;justify-content:space-between;margin-top:18px;flex-wrap:wrap;gap:12px}
+.pager .info{font-size:13px;color:var(--ink-soft)}
+.pager .pages{display:flex;gap:5px}
+.pager .pages button{
+  min-width:34px;height:34px;border:1px solid var(--line-strong);background:var(--surface);border-radius:8px;
+  font-weight:600;font-size:13.5px;color:var(--ink);padding:0 8px;
+}
+.pager .pages button.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pager .pages button:disabled{opacity:.4;cursor:not-allowed}
+.pager .pages button:not(.active):not(:disabled):hover{background:var(--surface-2)}
+
+/* ---------- HISTORY PAGE ---------- */
+.hist-row{display:flex;align-items:center;gap:13px;padding:13px 18px;border-bottom:1px solid var(--surface-2)}
+.hist-row:last-child{border-bottom:none}
+.hist-ic{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-size:16px;flex:none}
+.hist-ic.in{background:var(--ok-bg);color:var(--ok)}
+.hist-ic.out{background:var(--out-bg);color:var(--out)}
+.hist-ic.add{background:var(--primary-l);color:var(--primary-d)}
+.hist-ic.edit{background:var(--surface-2);color:var(--ink-soft)}
+.hist-ic.del{background:var(--out-bg);color:var(--out)}
+.hist-main{flex:1;min-width:0}
+.hist-main .t1{font-weight:600;font-size:13.5px}
+.hist-main .t2{font-size:11.5px;color:var(--ink-soft);font-family:var(--mono)}
+.hist-right{text-align:right;flex:none}
+.hist-right .delta{font-family:var(--mono);font-weight:700;font-size:15px}
+.hist-right .when{font-size:11px;color:var(--ink-soft)}
+
+/* ---------- MODAL ---------- */
+.overlay{position:fixed;inset:0;background:rgba(16,36,31,.42);backdrop-filter:blur(2px);z-index:60;display:flex;align-items:flex-start;justify-content:center;padding:30px 16px;overflow-y:auto}
+.modal{background:var(--surface);width:100%;max-width:560px;border-radius:18px;box-shadow:0 24px 60px -20px rgba(16,40,34,.5);animation:pop .18s ease}
+.modal.sm{max-width:420px}
+@keyframes pop{from{transform:translateY(10px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.modal-h{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.modal-h h3{margin:0;font-size:17px}
+.modal-h .x{border:none;background:transparent;font-size:22px;color:var(--ink-soft);width:32px;height:32px;border-radius:8px;line-height:1}
+.modal-h .x:hover{background:var(--surface-2)}
+.modal-b{padding:20px 22px}
+.modal-f{padding:16px 22px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.hint{font-size:11.5px;color:var(--ink-soft);margin-top:5px}
+
+/* image picker */
+.imgpick{display:flex;gap:14px;align-items:flex-start}
+.imgprev{width:88px;height:88px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line-strong);display:grid;place-items:center;font-size:40px;flex:none;overflow:hidden}
+.imgprev img{width:100%;height:100%;object-fit:cover}
+.imgctrls{flex:1;display:flex;flex-direction:column;gap:8px}
+.segtabs{display:flex;gap:4px;background:var(--surface-2);padding:3px;border-radius:9px}
+.segtabs button{flex:1;border:none;background:transparent;padding:6px;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--ink-soft)}
+.segtabs button.active{background:#fff;color:var(--primary-d);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* serial editor */
+.serial-box{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:6px}
+.serial-box table{font-size:12.5px}
+.serial-box th{padding:8px 10px}
+.serial-box td{padding:5px 8px}
+.serial-box input{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:7px;background:var(--surface-2)}
+.serial-add{padding:8px 10px;text-align:center;border-top:1px solid var(--line)}
+
+.adjbig{text-align:center;padding:6px 0 16px}
+.adjbig .cur{font-size:13px;color:var(--ink-soft)}
+.adjbig .num{font-size:40px;font-weight:700;font-family:var(--mono);letter-spacing:-1px;margin:4px 0}
+.adjbig .arrow{font-size:20px;color:var(--ink-soft);margin:0 10px}
+.adjbig .next{color:var(--primary-d)}
+.stepper{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:8px}
+.stepper button{width:44px;height:44px;border-radius:12px;border:1px solid var(--line-strong);background:var(--surface);font-size:22px;font-weight:700;color:var(--primary-d)}
+.stepper button:hover{background:var(--primary-l)}
+.stepper input{width:90px;text-align:center;font-size:22px;font-weight:700;font-family:var(--mono);padding:10px;border:1px solid var(--line-strong);border-radius:12px}
+
+/* toast */
+#toasts{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:9px;align-items:center}
+.toast{background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-size:13.5px;font-weight:500;box-shadow:0 10px 30px -8px rgba(0,0,0,.4);animation:tin .25s ease;display:flex;align-items:center;gap:9px}
+.toast.ok{background:var(--primary-d)}
+.toast.bad{background:var(--out)}
+@keyframes tin{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+
+@media (max-width:820px){
+  .cols{grid-template-columns:1fr}
+  .nav button{padding:8px 11px}
+  .topbar .title small{display:none}
+}
+@media (max-width:560px){
+  .main{padding:18px 14px 50px}
+  .topbar-in{padding:10px 14px;gap:10px}
+  .grid2{grid-template-columns:1fr}
+  .page-head h2{font-size:19px}
+  .hide-sm{display:none !important}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+
+/* ---- online status / loading / error ---- */
+.who .dot.ok{background:var(--ok)} .who .dot.bad{background:var(--out)}
+#loading{position:fixed;top:0;left:0;right:0;height:3px;z-index:90;overflow:hidden;background:transparent}
+#loading .lbar{height:100%;width:40%;background:linear-gradient(90deg,transparent,var(--primary),transparent);animation:lbar 1s linear infinite}
+@keyframes lbar{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
+.conn-err{display:flex;gap:14px;align-items:center;background:var(--out-bg);border:1px solid #f0b4b4;border-radius:var(--radius);padding:14px 16px;margin-bottom:18px}
+.conn-err .ce-ic{font-size:22px}
+.conn-err .ce-body{flex:1}
+.conn-err .ce-title{font-weight:700;color:var(--out);font-size:14.5px}
+.conn-err .ce-msg{font-size:12.5px;color:var(--out);font-family:var(--mono);margin-top:2px;word-break:break-word}
+.conn-err .ce-hint{font-size:12px;color:var(--ink-soft);margin-top:5px}
+#btn-refresh{white-space:nowrap}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="login">
+  <div class="login-card">
+    <div class="brand">
+      <div class="logo">✚</div>
+      <div>
+        <h1>ระบบสต๊อกสินค้า</h1>
+        <p>บริษัท เจี๋ยรักษา</p>
+      </div>
+    </div>
+    <div class="field">
+      <label>ชื่อผู้ใช้</label>
+      <input id="lg-user" type="text" autocomplete="username" placeholder="admin">
+    </div>
+    <div class="field">
+      <label>รหัสผ่าน</label>
+      <input id="lg-pass" type="password" autocomplete="current-password" placeholder="••••••••">
+    </div>
+    <div class="login-err" id="lg-err"></div>
+    <button class="btn primary block" id="lg-btn">เข้าสู่ระบบ</button>
+    <div class="login-hint">ระบบจัดการสต๊อกอุปกรณ์การแพทย์<br>บันทึกข้อมูลในเครื่องนี้ (localStorage)</div>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="app" class="hidden">
+  <header class="topbar">
+    <div class="topbar-in">
+      <div class="logo">✚</div>
+      <div class="title">เจี๋ยรักษา<small>ระบบสต๊อกสินค้า</small></div>
+      <nav class="nav" id="nav">
+        <button data-page="dashboard" class="active">แดชบอร์ด</button>
+        <button data-page="products">สินค้า</button>
+        <button data-page="history">ประวัติ</button>
+      </nav>
+      <div class="spacer"></div>
+      <div class="who hide-sm" id="sync"><span class="dot"></span>กำลังเชื่อมต่อ…</div>
+      <button class="btn ghost sm" id="btn-refresh" title="ดึงข้อมูลล่าสุดจากชีต">↻ รีเฟรช</button>
+      <button class="btn ghost sm" id="btn-backup">สำรองข้อมูล</button>
+      <button class="btn ghost sm" id="btn-logout">ออก</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div id="conn-err" class="conn-err hidden">
+      <div class="ce-ic">⚠️</div>
+      <div class="ce-body">
+        <div class="ce-title">เชื่อมต่อ Google Sheet ไม่ได้</div>
+        <div class="ce-msg" id="conn-err-msg"></div>
+        <div class="ce-hint">ตรวจว่า: ต่ออินเทอร์เน็ตอยู่ · URL และ TOKEN ถูกต้อง · Deploy เป็น "Anyone"</div>
+      </div>
+      <button class="btn primary sm" id="conn-retry">ลองใหม่</button>
+    </div>
+    <!-- DASHBOARD -->
+    <section id="page-dashboard"></section>
+    <!-- PRODUCTS -->
+    <section id="page-products" class="hidden"></section>
+    <!-- HISTORY -->
+    <section id="page-history" class="hidden"></section>
+  </main>
+</div>
+
+<div id="loading" class="hidden"><div class="lbar"></div></div>
+<div id="toasts"></div>
+<div id="modal-root"></div>
+<input type="file" id="hidden-file" accept="image/*" class="hidden">
+
+<script>
+"use strict";
+/* ============ DATA SEED (ใช้เฉพาะปุ่ม "นำเข้าข้อมูลเริ่มต้น 88 รายการ") ============ */
+const SEED = {"company": "บริษัท เจี๋ยรักษา", "products": [{"id": 1, "sku": "BPM-001", "name": "เครื่องวัดความดัน Yuwell YE660F", "cat": "เครื่องวัดความดัน", "price": 999, "qty": 5, "unit": "ชุด", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 2, "sku": "BPM-002", "name": "เครื่องวัดความดัน Yuwell YE680B", "cat": "เครื่องวัดความดัน", "price": 0, "qty": 1, "unit": "ชุด", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 3, "sku": "MES-001", "name": "YX110 - Finger Pulse Oximeter", "cat": "อุปกรณ์วัดค่า", "price": 699, "qty": 24, "unit": "ชุด", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 4, "sku": "NEB-001", "name": "M102 - Mesh Nebulizer", "cat": "เครื่องพ่นยา", "price": 999, "qty": 30, "unit": "ชุด", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 5, "sku": "MES-002", "name": "YHW-6 - Infrared Thermometer", "cat": "อุปกรณ์วัดค่า", "price": 999, "qty": 31, "unit": "ชุด", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 6, "sku": "GLU-001", "name": "Accusure Blood Glucose Meter รุ่น 710", "cat": "น้ำตาลในเลือด", "price": 499, "qty": 26, "unit": "ชุด", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 7, "sku": "GLU-002", "name": "Y330 : Blood glucose test strips 25pcs", "cat": "น้ำตาลในเลือด", "price": 150, "qty": 177, "unit": "กล่อง", "minQty": 10, "note": "", "trackSerial": false, "serials": []}, {"id": 8, "sku": "GLU-003", "name": "Sterile Lancet, Soft Twist Lancets 28G", "cat": "น้ำตาลในเลือด", "price": 100, "qty": 80, "unit": "กล่อง", "minQty": 10, "note": "", "trackSerial": false, "serials": []}, {"id": 9, "sku": "GLU-004", "name": "ชุดตรวจน้ำตาลต่อเนื่อง Transmitter CT-300D", "cat": "น้ำตาลในเลือด", "price": 1000, "qty": 9, "unit": "ชุด", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 10, "sku": "GLU-005", "name": "ชุดตรวจน้ำตาลต่อเนื่อง Sensor CT-302", "cat": "น้ำตาลในเลือด", "price": 1500, "qty": 8, "unit": "ชุด", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 11, "sku": "COL-001", "name": "Mini Perfit Ace Collar (child)", "cat": "Collar / คอเฝือก", "price": 650, "qty": 1, "unit": "ชิ้น", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 12, "sku": "COL-002", "name": "Perfit Ace Collar (adult)", "cat": "Collar / คอเฝือก", "price": 650, "qty": 0, "unit": "ชิ้น", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 13, "sku": "CPR-001", "name": "SimCPR by Jia", "cat": "CPR / ฝึกอบรม", "price": 1500, "qty": 17, "unit": "ชิ้น", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 14, "sku": "AIR-001", "name": "JIA OPA", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 250, "qty": 0, "unit": "ชุด", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 15, "sku": "AIR-002", "name": "JIA NPA 3.0", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 50, "qty": 9, "unit": "ชิ้น", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 16, "sku": "AIR-003", "name": "JIA NPA 3.5", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 50, "qty": 1, "unit": "ชิ้น", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 17, "sku": "AIR-004", "name": "JIA NPA 6.0", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 50, "qty": 15, "unit": "ชิ้น", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 18, "sku": "AIR-005", "name": "JIA NPA 6.5", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 50, "qty": 15, "unit": "ชิ้น", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 19, "sku": "AIR-006", "name": "JIA Stylet Sz.6", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 50, "qty": 8, "unit": "ชิ้น", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 20, "sku": "AIR-007", "name": "JIA Stylet Sz.10", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 75, "qty": 10, "unit": "ชิ้น", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 21, "sku": "AIR-008", "name": "JIA Stylet Sz.12", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 75, "qty": 18, "unit": "ชิ้น", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 22, "sku": "AIR-009", "name": "JIA Stylet Sz.14", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 75, "qty": 51, "unit": "ชิ้น", "minQty": 10, "note": "", "trackSerial": false, "serials": []}, {"id": 23, "sku": "CPR-002", "name": "JIA Life MASK", "cat": "CPR / ฝึกอบรม", "price": 50, "qty": 0, "unit": "ชิ้น", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 24, "sku": "AIR-010", "name": "JIA Video Laryngoscope", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 1500, "qty": 1, "unit": "ชิ้น", "minQty": 2, "note": "", "trackSerial": false, "serials": []}, {"id": 25, "sku": "AIR-011", "name": "Laryngoscope set", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 1500, "qty": 3, "unit": "อัน", "minQty": 2, "note": "", "trackSerial": false, "serials": []}, {"id": 26, "sku": "MSC-001", "name": "Wifi Box", "cat": "อุปกรณ์อื่นๆ", "price": 0, "qty": 2, "unit": "ชิ้น", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 27, "sku": "MSC-002", "name": "Screen Endoscope", "cat": "อุปกรณ์อื่นๆ", "price": 0, "qty": 1, "unit": "กล่อง", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 28, "sku": "BVM-001", "name": "Ambu Aura once #3", "cat": "Ambu / BVM", "price": 0, "qty": 1, "unit": "ชุด", "minQty": 2, "note": "", "trackSerial": false, "serials": []}, {"id": 29, "sku": "BVM-002", "name": "Ambu Aura once #4", "cat": "Ambu / BVM", "price": 0, "qty": 1, "unit": "ชุด", "minQty": 2, "note": "", "trackSerial": false, "serials": []}, {"id": 30, "sku": "AIR-012", "name": "Jia Suction / Closed Suction", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 0, "qty": 9, "unit": "ชุด", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 31, "sku": "MES-003", "name": "Cuff Pressure", "cat": "อุปกรณ์วัดค่า", "price": 1500, "qty": 10, "unit": "ชิ้น", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 32, "sku": "PPE-001", "name": "JIA Faceshield", "cat": "PPE", "price": 500, "qty": 6, "unit": "กล่อง", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 33, "sku": "PPE-002", "name": "JIA Life Roll", "cat": "PPE", "price": 399, "qty": 7, "unit": "กล่อง", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 34, "sku": "AIR-013", "name": "JIA Tube Holder", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 100, "qty": 32, "unit": "ชิ้น", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 35, "sku": "CPR-003", "name": "JIA Plug / เศษอาหารจำลอง", "cat": "CPR / ฝึกอบรม", "price": 0, "qty": 8, "unit": "ซอง", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 36, "sku": "BVM-003", "name": "Ambu Silicone ทารก", "cat": "Ambu / BVM", "price": 900, "qty": 3, "unit": "อัน", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 37, "sku": "BVM-004", "name": "Ambu Silicone เด็ก", "cat": "Ambu / BVM", "price": 900, "qty": 14, "unit": "อัน", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 38, "sku": "BVM-005", "name": "Ambu Silicone ผู้ใหญ่", "cat": "Ambu / BVM", "price": 900, "qty": 18, "unit": "อัน", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 39, "sku": "BVM-006", "name": "Ambu PVC ผู้ใหญ่", "cat": "Ambu / BVM", "price": 499, "qty": 0, "unit": "กล่อง", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 40, "sku": "APD-001", "name": "JIA Adult Train PAD", "cat": "AED / PAD", "price": 0, "qty": 8, "unit": "ชุด", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 41, "sku": "APD-002", "name": "JIA Child Train PAD", "cat": "AED / PAD", "price": 0, "qty": 31, "unit": "ชุด", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 42, "sku": "AIR-014", "name": "JIA Tube Kit", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 0, "qty": 9, "unit": "ชุด", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 43, "sku": "CPR-004", "name": "JIA Shirt เสื้อหุ่น (S for CPR MAN)", "cat": "CPR / ฝึกอบรม", "price": 0, "qty": 14, "unit": "ตัว", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 44, "sku": "CPR-005", "name": "JIA Shirt เสื้อหุ่น (L for Prestan)", "cat": "CPR / ฝึกอบรม", "price": 0, "qty": 10, "unit": "ตัว", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 45, "sku": "SUT-001", "name": "ชุดเย็บแผลเล็ก", "cat": "อุปกรณ์เย็บแผล", "price": 699, "qty": 14, "unit": "กล่อง", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 46, "sku": "SUT-002", "name": "ชุดเย็บแผลใหญ่", "cat": "อุปกรณ์เย็บแผล", "price": 999, "qty": 1, "unit": "กล่อง", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 47, "sku": "MAN-001", "name": "Choking เด็ก", "cat": "หุ่นฝึก", "price": 7000, "qty": 2, "unit": "อัน", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 48, "sku": "MAN-002", "name": "Choking ผู้ใหญ่", "cat": "หุ่นฝึก", "price": 7000, "qty": 3, "unit": "อัน", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 49, "sku": "MAN-003", "name": "J Baby", "cat": "หุ่นฝึก", "price": 7000, "qty": 4, "unit": "ตัว", "minQty": 2, "note": "", "trackSerial": false, "serials": []}, {"id": 50, "sku": "MAN-004", "name": "CPR Man", "cat": "หุ่นฝึก", "price": 7500, "qty": 2, "unit": "ตัว", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 51, "sku": "MAN-005", "name": "CPR Man Plus", "cat": "หุ่นฝึก", "price": 9000, "qty": 1, "unit": "ตัว", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 52, "sku": "MAN-006", "name": "Prestan 100M", "cat": "หุ่นฝึก", "price": 12000, "qty": 0, "unit": "ตัว", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 53, "sku": "MAN-007", "name": "Prestan 2000", "cat": "หุ่นฝึก", "price": 16000, "qty": 3, "unit": "ตัว", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 54, "sku": "AED-001", "name": "AED Philips", "cat": "AED", "price": 0, "qty": 0, "unit": "เครื่อง", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 55, "sku": "AED-002", "name": "AED YUWELL GPS", "cat": "AED", "price": 39999, "qty": 15, "unit": "เครื่อง", "minQty": 3, "note": "", "trackSerial": true, "serials": [{"machineSn": "200730156515.1", "batterySn": "-", "date": "", "note": ""}, {"machineSn": "3001850123060285", "batterySn": "4610960010223060310", "date": "", "note": ""}, {"machineSn": "3001850123060648", "batterySn": "4610960010223060310", "date": "", "note": ""}, {"machineSn": "3001850123060651", "batterySn": "4610960010223060306", "date": "", "note": ""}, {"machineSn": "3001850123060669", "batterySn": "4610960010223060086", "date": "", "note": ""}]}, {"id": 56, "sku": "AED-003", "name": "Heartsine 350P", "cat": "AED", "price": 0, "qty": 1, "unit": "เครื่อง", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 57, "sku": "APD-003", "name": "AED Yuwell Trainer", "cat": "AED / PAD", "price": 15000, "qty": 0, "unit": "เครื่อง", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 58, "sku": "APD-004", "name": "AED Trainer หน้าขาว", "cat": "AED / PAD", "price": 8000, "qty": 0, "unit": "เครื่อง", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 59, "sku": "APD-005", "name": "AED Trainer หน้าแดง", "cat": "AED / PAD", "price": 4500, "qty": 0, "unit": "เครื่อง", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 60, "sku": "APD-006", "name": "AED Mini", "cat": "AED / PAD", "price": 2000, "qty": 0, "unit": "เครื่อง", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 61, "sku": "APD-007", "name": "iTrainer กระเป๋าดำ", "cat": "AED / PAD", "price": 0, "qty": 1, "unit": "เครื่อง", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 62, "sku": "APD-008", "name": "กระเป๋าแดง สำหรับ AED Trainer", "cat": "AED / PAD", "price": 0, "qty": 17, "unit": "อัน", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 63, "sku": "APD-009", "name": "ป้าย AED", "cat": "AED / PAD", "price": 0, "qty": 12, "unit": "อัน", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 64, "sku": "APD-010", "name": "AED Trainer kit set", "cat": "AED / PAD", "price": 500, "qty": 3, "unit": "ชุด", "minQty": 2, "note": "", "trackSerial": false, "serials": []}, {"id": 65, "sku": "CPR-006", "name": "คลิปล๊อคคอหุ่น", "cat": "CPR / ฝึกอบรม", "price": 0, "qty": 11, "unit": "คู่", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 66, "sku": "AED-004", "name": "ตู้ AED", "cat": "AED", "price": 4500, "qty": 11, "unit": "ตู้", "minQty": 2, "note": "", "trackSerial": false, "serials": []}, {"id": 67, "sku": "APD-011", "name": "ป้าย AED สำหรับติดรถ", "cat": "AED / PAD", "price": 0, "qty": 28, "unit": "อัน", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 68, "sku": "AIR-015", "name": "NPA ตัวใหม่ เบอร์ 6", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 0, "qty": 7, "unit": "อัน", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 69, "sku": "AIR-016", "name": "NPA ตัวใหม่ เบอร์ 7", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 0, "qty": 7, "unit": "อัน", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 70, "sku": "BVM-007", "name": "Ambu Spur", "cat": "Ambu / BVM", "price": 0, "qty": 2, "unit": "อัน", "minQty": 2, "note": "", "trackSerial": false, "serials": []}, {"id": 71, "sku": "CPR-007", "name": "เสื้อหุ่นสีเขียว", "cat": "CPR / ฝึกอบรม", "price": 0, "qty": 0, "unit": "อัน", "minQty": 2, "note": "", "trackSerial": false, "serials": []}, {"id": 72, "sku": "CPR-008", "name": "หน้าอกหุ่นผู้ใหญ่", "cat": "CPR / ฝึกอบรม", "price": 0, "qty": 5, "unit": "อัน", "minQty": 2, "note": "", "trackSerial": false, "serials": []}, {"id": 73, "sku": "CPR-009", "name": "หน้าอกหุ่นเด็ก", "cat": "CPR / ฝึกอบรม", "price": 0, "qty": 5, "unit": "อัน", "minQty": 2, "note": "", "trackSerial": false, "serials": []}, {"id": 74, "sku": "MSC-003", "name": "กรรไกร EMT", "cat": "อุปกรณ์อื่นๆ", "price": 0, "qty": 4, "unit": "อัน", "minQty": 2, "note": "", "trackSerial": false, "serials": []}, {"id": 75, "sku": "MES-004", "name": "วัดอุณหภูมิแบบปรอท", "cat": "อุปกรณ์วัดค่า", "price": 0, "qty": 60, "unit": "อัน", "minQty": 10, "note": "", "trackSerial": false, "serials": []}, {"id": 76, "sku": "CPR-010", "name": "Jia Mat", "cat": "CPR / ฝึกอบรม", "price": 0, "qty": 42, "unit": "ผืน", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 77, "sku": "MAN-008", "name": "Choking แดง", "cat": "หุ่นฝึก", "price": 0, "qty": 9, "unit": "ตัว", "minQty": 2, "note": "", "trackSerial": false, "serials": []}, {"id": 78, "sku": "MAN-009", "name": "มอนิเตอร์ Prestan2000 (Add-On Kit)", "cat": "หุ่นฝึก", "price": 0, "qty": 0, "unit": "ชุด", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 79, "sku": "MAN-010", "name": "มอนิเตอร์ Prestan100 (CPR Rate Monitors)", "cat": "หุ่นฝึก", "price": 0, "qty": 0, "unit": "ชุด", "minQty": 1, "note": "", "trackSerial": false, "serials": []}, {"id": 80, "sku": "COL-003", "name": "COLLAR COL001", "cat": "Collar / คอเฝือก", "price": 250, "qty": 5, "unit": "อัน", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 81, "sku": "COL-004", "name": "COLLAR COL002", "cat": "Collar / คอเฝือก", "price": 250, "qty": 5, "unit": "อัน", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 82, "sku": "COL-005", "name": "COLLAR COL003", "cat": "Collar / คอเฝือก", "price": 250, "qty": 5, "unit": "อัน", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 83, "sku": "COL-006", "name": "COLLAR COL004", "cat": "Collar / คอเฝือก", "price": 459, "qty": 5, "unit": "อัน", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 84, "sku": "COL-007", "name": "COLLAR COL005", "cat": "Collar / คอเฝือก", "price": 459, "qty": 5, "unit": "อัน", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 85, "sku": "COL-008", "name": "COLLAR COL006", "cat": "Collar / คอเฝือก", "price": 650, "qty": 5, "unit": "อัน", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 86, "sku": "COL-009", "name": "COLLAR COL007", "cat": "Collar / คอเฝือก", "price": 650, "qty": 5, "unit": "อัน", "minQty": 3, "note": "", "trackSerial": false, "serials": []}, {"id": 87, "sku": "AIR-017", "name": "JIA NPA 7.0", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 50, "qty": 3, "unit": "ชิ้น", "minQty": 5, "note": "", "trackSerial": false, "serials": []}, {"id": 88, "sku": "AIR-018", "name": "JIA NPA 7.5", "cat": "อุปกรณ์ทางเดินหายใจ", "price": 50, "qty": 14, "unit": "ชิ้น", "minQty": 5, "note": "", "trackSerial": false, "serials": []}]};
+
+/* ============ API CONFIG ============ */
+const API_URL   = 'https://script.google.com/macros/s/AKfycbynkhabuLrASUwihmEZNC04JsvpRgBu1RcCO3cywgifrSdYHuA4z_cX-FGja3kUOx71/exec';
+const API_TOKEN = 'jia-secret-2026';   // ← ต้องตรงกับ TOKEN ใน Code.gs
+
+async function apiGet(action, params){
+  const u = new URL(API_URL);
+  u.searchParams.set('action', action);
+  u.searchParams.set('token', API_TOKEN);
+  Object.entries(params||{}).forEach(([k,v])=>u.searchParams.set(k,v));
+  const res = await fetch(u.toString(), {method:'GET', redirect:'follow'});
+  const data = await res.json();
+  if(!data.ok) throw new Error(data.error||'ผิดพลาด');
+  return data;
+}
+async function apiPost(action, payload){
+  const res = await fetch(API_URL, {
+    method:'POST', redirect:'follow',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({action, token:API_TOKEN, ...(payload||{})})
+  });
+  const data = await res.json();
+  if(!data.ok) throw new Error(data.error||'ผิดพลาด');
+  return data;
+}
+
+/* ============ STATE ============ */
+let DB = { products:[], history:[] };
+let view = (function(){ try{return localStorage.getItem('jia_view')||'table';}catch(e){return 'table';} })();
+let page = 1; const PER = 12;
+let q = '', fCat = '', fStatus = '';
+let curPage = 'dashboard';
+
+const CAT_EMOJI = {
+  'เครื่องวัดความดัน':'🩺','อุปกรณ์วัดค่า':'🌡️','เครื่องพ่นยา':'💨','น้ำตาลในเลือด':'🩸',
+  'Collar / คอเฝือก':'🧣','CPR / ฝึกอบรม':'🫀','อุปกรณ์ทางเดินหายใจ':'🫁','อุปกรณ์อื่นๆ':'📦',
+  'Ambu / BVM':'🎈','PPE':'🥽','AED / PAD':'🔌','AED':'⚡','อุปกรณ์เย็บแผล':'🪡','หุ่นฝึก':'🧍'
+};
+function catEmoji(c){ return CAT_EMOJI[c] || '📦'; }
+
+/* ============ DOM/HELPERS ============ */
+const $  = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function nf(n){ return Number(n||0).toLocaleString('en-US'); }
+function baht(n){ return Number(n||0).toLocaleString('en-US'); }
+function status(p){ if(p.qty<=0) return 'out'; if(p.qty<=p.minQty) return 'low'; return 'ok'; }
+const STATUS_TXT = { ok:'ปกติ', low:'ใกล้หมด', out:'หมด' };
+function nextSku(prefix){
+  const re=new RegExp('^'+prefix+'-(\\d+)$'); let mx=0;
+  DB.products.forEach(p=>{ const m=(p.sku||'').match(re); if(m) mx=Math.max(mx,+m[1]); });
+  return prefix+'-'+String(mx+1).padStart(3,'0');
+}
+function relTime(iso){
+  const d=new Date(iso), s=(Date.now()-d)/1000;
+  if(s<60) return 'เมื่อสักครู่';
+  if(s<3600) return Math.floor(s/60)+' นาทีที่แล้ว';
+  if(s<86400) return Math.floor(s/3600)+' ชม.ที่แล้ว';
+  if(s<604800) return Math.floor(s/86400)+' วันที่แล้ว';
+  return d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});
+}
+function fullTime(iso){ return new Date(iso).toLocaleString('th-TH',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+/* รูปภาพ: 'auto' = เดาจาก SKU ในโฟลเดอร์ images/, ลองหลายนามสกุล, ไม่เจอ → อิโมจิ */
+const IMG_EXT = ['jpg','png','jpeg','webp','JPG','PNG'];
+function imgTag(p){
+  const emoji = catEmoji(p.cat);
+  if(!p.img) return emoji;
+  if(p.img==='auto'){
+    if(!p.sku) return emoji;
+    return `<img src="images/${encodeURIComponent(p.sku)}.${IMG_EXT[0]}" data-sku="${esc(p.sku)}" data-emoji="${esc(emoji)}" data-try="0" onerror="imgFB(this)" alt="">`;
+  }
+  return `<img src="${esc(p.img)}" data-emoji="${esc(emoji)}" onerror="imgFBemoji(this)" alt="">`;
+}
+window.imgFB=function(el){
+  let t=(+el.dataset.try||0)+1;
+  if(t < IMG_EXT.length){ el.dataset.try=t; el.src='images/'+encodeURIComponent(el.dataset.sku)+'.'+IMG_EXT[t]; }
+  else imgFBemoji(el);
+};
+window.imgFBemoji=function(el){ const s=document.createElement('span'); s.textContent=el.dataset.emoji||'📦'; el.replaceWith(s); };
+function avatar(p){ return imgTag(p); }
+
+/* ============ TOAST + LOADING ============ */
+function toast(msg, kind){
+  const t=document.createElement('div');
+  t.className='toast'+(kind?' '+kind:'');
+  t.innerHTML=(kind==='ok'?'✓ ':kind==='bad'?'✕ ':'')+esc(msg);
+  $('#toasts').appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateY(8px)'; setTimeout(()=>t.remove(),250); },2400);
+}
+let busyN=0;
+function busy(on){ busyN+=on?1:-1; busyN=Math.max(0,busyN); $('#loading').classList.toggle('hidden', busyN===0); }
+async function withBusy(fn){ busy(true); try{ return await fn(); } finally{ busy(false); } }
+
+/* ============ AUTH (UI gate only) ============ */
+const CRED = { user:'admin', pass:'jia2024' };
+function sessGet(){ try{return localStorage.getItem('jia_stock_session');}catch(e){return null;} }
+function sessSet(){ try{localStorage.setItem('jia_stock_session','1');}catch(e){} }
+function sessDel(){ try{localStorage.removeItem('jia_stock_session');}catch(e){} }
+function doLogin(){
+  const u=$('#lg-user').value.trim(), p=$('#lg-pass').value;
+  if(u===CRED.user && p===CRED.pass){
+    sessSet(); $('#login').classList.add('hidden'); $('#app').classList.remove('hidden'); boot();
+  }else{ $('#lg-err').textContent='ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'; $('#lg-pass').value=''; }
+}
+function logout(){ sessDel(); location.reload(); }
+
+/* ============ DATA REFRESH (from Sheet) ============ */
+async function refresh(){
+  try{
+    await withBusy(async()=>{
+      const d = await apiGet('list');
+      DB.products = d.products||[]; DB.history = d.history||[];
+    });
+    $('#conn-err').classList.add('hidden');
+    setSync('ok');
+    if(curPage==='dashboard') renderDash();
+    else if(curPage==='products') renderProducts();
+    else renderHistory();
+  }catch(err){ showConnError(err); }
+}
+function setSync(state){
+  const el=$('#sync'); if(!el) return;
+  if(state==='ok'){ el.innerHTML='<span class="dot ok"></span>เชื่อมต่อชีตแล้ว'; }
+  else { el.innerHTML='<span class="dot bad"></span>ขาดการเชื่อมต่อ'; }
+}
+function showConnError(err){
+  setSync('bad');
+  $('#conn-err').classList.remove('hidden');
+  $('#conn-err-msg').textContent = String(err && err.message || err);
+}
+
+/* ============ ROUTER ============ */
+function go(p){
+  curPage=p;
+  $$('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+  ['dashboard','products','history'].forEach(x=>$('#page-'+x).classList.toggle('hidden',x!==p));
+  if(p==='dashboard') renderDash();
+  if(p==='products') renderProducts();
+  if(p==='history') renderHistory();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ============ DASHBOARD ============ */
+function renderDash(){
+  const ps=DB.products;
+  if(!ps.length){ $('#page-dashboard').innerHTML = emptySheetHtml(); wireEmptySheet(); return; }
+  const totalSkus=ps.length;
+  const totalQty=ps.reduce((s,p)=>s+(+p.qty||0),0);
+  const totalVal=ps.reduce((s,p)=>s+(+p.qty||0)*(+p.price||0),0);
+  const low=ps.filter(p=>status(p)==='low');
+  const out=ps.filter(p=>status(p)==='out');
+  const alerts=[...out,...low];
+  const stat=(cls,ic,k,v,sub)=>`<div class="stat ${cls||''}"><div class="ic">${ic}</div><div class="k">${k}</div><div class="v">${v}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>`;
+  $('#page-dashboard').innerHTML = `
+  <div class="page-head"><div><h2>แดชบอร์ด</h2><p>ภาพรวมสต๊อกสินค้าทั้งหมด</p></div></div>
+  <div class="stat-grid">
+    ${stat('accent','📦','รายการสินค้า', nf(totalSkus), 'SKU ทั้งหมด')}
+    ${stat('','🔢','จำนวนรวม', nf(totalQty), 'หน่วยในคลัง')}
+    ${stat('','💰','มูลค่าสต๊อก', '฿'+baht(totalVal), 'ตามราคาขาย')}
+    ${stat('warn','⚠️','ใกล้หมด', nf(low.length), 'ต่ำกว่าขั้นต่ำ')}
+    ${stat('bad','🛑','หมดสต๊อก', nf(out.length), 'ต้องสั่งเพิ่ม')}
+  </div>
+  <div class="cols">
+    <div class="panel">
+      <div class="panel-h"><h3>⚠️ ต้องสั่งเพิ่ม</h3><span class="count">${alerts.length} รายการ</span></div>
+      <div class="panel-body">
+        ${alerts.length? alerts.slice(0,12).map(p=>{ const st=status(p);
+          return `<div class="li" data-open="${p.id}" style="cursor:pointer">
+            <div class="ava">${avatar(p)}</div>
+            <div class="meta"><div class="nm">${esc(p.name)}</div><div class="sk">${esc(p.sku)} · ${esc(p.cat)}</div></div>
+            <div class="right"><span class="pill ${st}">${st==='out'?'หมด':'เหลือ '+p.qty+' '+esc(p.unit)}</span><div class="hist-line">ขั้นต่ำ ${p.minQty}</div></div>
+          </div>`; }).join('') : `<div class="empty">✓ สต๊อกทุกรายการอยู่ในระดับปกติ</div>`}
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-h"><h3>🕘 ความเคลื่อนไหวล่าสุด</h3><button class="btn ghost sm" data-goto="history">ดูทั้งหมด</button></div>
+      <div class="panel-body">
+        ${DB.history.length? DB.history.slice(0,8).map(h=>{
+          const dir=h.type==='in'?'in':h.type==='out'?'out':''; const sign=h.type==='in'?'+':h.type==='out'?'−':'';
+          return `<div class="li">
+            <div class="ava">${h.type==='in'?'📥':h.type==='out'?'📤':h.type==='add'?'➕':h.type==='del'?'🗑️':'✏️'}</div>
+            <div class="meta"><div class="nm">${esc(h.name)}</div><div class="sk">${esc(h.sku)} · ${relTime(h.ts)}</div></div>
+            <div class="right">${(h.type==='in'||h.type==='out')?`<span class="hist-q ${dir}">${sign}${h.qty}</span>`:`<span class="hist-line">${h.type==='add'?'เพิ่มสินค้า':h.type==='del'?'ลบสินค้า':'แก้ไข'}</span>`}</div>
+          </div>`; }).join('') : `<div class="empty">ยังไม่มีความเคลื่อนไหว</div>`}
+      </div>
+    </div>
+  </div>`;
+  $$('#page-dashboard [data-open]').forEach(el=>el.onclick=()=>openProductForm(+el.dataset.open));
+  const gt=$('#page-dashboard [data-goto]'); if(gt) gt.onclick=()=>go('history');
+}
+function emptySheetHtml(){
+  return `<div class="page-head"><div><h2>แดชบอร์ด</h2><p>ยังไม่มีข้อมูลในชีต</p></div></div>
+  <div class="panel"><div class="empty" style="padding:48px 20px">
+    <div style="font-size:40px;margin-bottom:10px">📭</div>
+    <div style="font-size:16px;font-weight:600;color:var(--ink);margin-bottom:6px">ชีตยังว่างอยู่</div>
+    <div style="margin-bottom:18px">เริ่มต้นได้ 2 ทาง — นำเข้าสินค้าตั้งต้น 88 รายการ หรือเพิ่มเองทีละรายการ</div>
+    <button class="btn primary" id="seed-btn">⬆ นำเข้าข้อมูลเริ่มต้น 88 รายการ</button>
+    <button class="btn ghost" id="seed-add" style="margin-left:8px">＋ เพิ่มสินค้าเอง</button>
+  </div></div>`;
+}
+function wireEmptySheet(){
+  const s=$('#seed-btn'); if(s) s.onclick=()=>confirmBox('นำเข้าข้อมูลเริ่มต้น?','จะเขียนสินค้า 88 รายการลงในชีต (ทับข้อมูลสินค้าเดิมถ้ามี)','นำเข้า',async()=>{
+    try{ await withBusy(()=>apiPost('bulkImport',{products:SEED.products})); toast('นำเข้า 88 รายการแล้ว','ok'); await refresh(); }
+    catch(err){ toast('นำเข้าไม่สำเร็จ: '+err.message,'bad'); }
+  },false);
+  const a=$('#seed-add'); if(a) a.onclick=()=>openProductForm(null);
+}
+
+/* ============ PRODUCTS ============ */
+function filtered(){
+  let r=DB.products;
+  if(q){ const k=q.toLowerCase(); r=r.filter(p=>(p.name+' '+p.sku+' '+p.cat).toLowerCase().includes(k)); }
+  if(fCat) r=r.filter(p=>p.cat===fCat);
+  if(fStatus) r=r.filter(p=>status(p)===fStatus);
+  return r;
+}
+function renderProducts(){
+  const sec=$('#page-products');
+  if(!DB.products.length){ sec.innerHTML = emptySheetHtml().replace('แดชบอร์ด','สินค้า'); wireEmptySheet(); return; }
+  const cats=[...new Set(DB.products.map(p=>p.cat))].sort();
+  sec.innerHTML=`
+  <div class="page-head">
+    <div><h2>สินค้า</h2><p>ทั้งหมด ${DB.products.length} รายการ</p></div>
+    <div style="flex:1"></div>
+    <button class="btn ghost" id="btn-automatch" title="ตั้งให้ทุกสินค้าใช้รูปจากโฟลเดอร์ images ตาม SKU">🖼️ จับคู่รูปจาก SKU</button>
+    <button class="btn primary" id="btn-add">＋ เพิ่มสินค้า</button>
+  </div>
+  <div class="toolbar">
+    <div class="search"><span class="si">🔍</span><input id="f-q" placeholder="ค้นหาชื่อ / SKU / หมวดหมู่" value="${esc(q)}"></div>
+    <select id="f-cat"><option value="">ทุกหมวดหมู่</option>${cats.map(c=>`<option value="${esc(c)}" ${c===fCat?'selected':''}>${esc(c)}</option>`).join('')}</select>
+    <select id="f-status">
+      <option value="">ทุกสถานะ</option>
+      <option value="ok" ${fStatus==='ok'?'selected':''}>ปกติ</option>
+      <option value="low" ${fStatus==='low'?'selected':''}>ใกล้หมด</option>
+      <option value="out" ${fStatus==='out'?'selected':''}>หมด</option>
+    </select>
+    <div class="viewtoggle">
+      <button id="v-table" class="${view==='table'?'active':''}" title="ตาราง">☰</button>
+      <button id="v-card" class="${view==='card'?'active':''}" title="การ์ด">⊞</button>
+    </div>
+  </div>
+  <div id="prod-list"></div>
+  <div id="prod-pager"></div>`;
+  $('#btn-add').onclick=()=>openProductForm(null);
+  $('#btn-automatch').onclick=()=>confirmBox('จับคู่รูปจาก SKU?','จะตั้งให้ทุกสินค้ามองหารูปในโฟลเดอร์ images/ ตามชื่อ SKU (เช่น images/BPM-001.jpg) — สินค้าที่ไม่มีไฟล์รูปจะแสดงอิโมจิตามเดิม','จับคู่ทั้งหมด',async()=>{
+    try{
+      const updated=DB.products.map(p=>({...p, img:'auto'}));
+      await withBusy(()=>apiPost('bulkImport',{products:updated}));
+      toast('ตั้งค่ารูปจาก SKU ให้ทุกสินค้าแล้ว','ok'); await refresh();
+    }catch(err){ toast('ล้มเหลว: '+err.message,'bad'); }
+  },false);
+  $('#f-q').oninput=e=>{ q=e.target.value; page=1; drawList(); };
+  $('#f-cat').onchange=e=>{ fCat=e.target.value; page=1; drawList(); };
+  $('#f-status').onchange=e=>{ fStatus=e.target.value; page=1; drawList(); };
+  $('#v-table').onclick=()=>{ view='table'; try{localStorage.setItem('jia_view','table');}catch(e){} $('#v-table').classList.add('active'); $('#v-card').classList.remove('active'); drawList(); };
+  $('#v-card').onclick=()=>{ view='card'; try{localStorage.setItem('jia_view','card');}catch(e){} $('#v-card').classList.add('active'); $('#v-table').classList.remove('active'); drawList(); };
+  drawList();
+}
+function drawList(){
+  const all=filtered();
+  const pages=Math.max(1,Math.ceil(all.length/PER));
+  if(page>pages) page=pages;
+  const slice=all.slice((page-1)*PER, page*PER);
+  const host=$('#prod-list');
+  if(!all.length){ host.innerHTML=`<div class="tablewrap"><div class="empty">ไม่พบสินค้าที่ตรงกับเงื่อนไข</div></div>`; $('#prod-pager').innerHTML=''; return; }
+  if(view==='table'){
+    host.innerHTML=`<div class="tablewrap"><table>
+      <thead><tr><th>สินค้า</th><th class="hide-sm">หมวดหมู่</th><th class="num hide-sm">ราคา</th><th class="num">คงเหลือ</th><th class="ctr">สถานะ</th><th class="num">จัดการ</th></tr></thead><tbody>
+      ${slice.map(p=>{ const st=status(p); return `<tr>
+        <td><div class="cell-prod"><div class="ava">${avatar(p)}</div><div><div class="nm">${esc(p.name)}${p.trackSerial?'<span class="serial-flag">SN</span>':''}</div><div class="sk">${esc(p.sku)}</div></div></div></td>
+        <td class="hide-sm"><span class="cat-tag">${esc(p.cat)}</span></td>
+        <td class="num hide-sm mono">${p.price?'฿'+baht(p.price):'—'}</td>
+        <td class="num"><span class="qty-big">${p.qty}</span> <span style="color:var(--ink-soft);font-size:12px">${esc(p.unit)}</span></td>
+        <td class="ctr"><span class="pill ${st}">${STATUS_TXT[st]}</span></td>
+        <td class="num"><div class="row-actions">
+          <button class="iconbtn in" title="รับเข้า" data-in="${p.id}">＋</button>
+          <button class="iconbtn out" title="จ่ายออก" data-out="${p.id}">－</button>
+          <button class="iconbtn" title="แก้ไข" data-edit="${p.id}">✏️</button>
+          <button class="iconbtn del" title="ลบ" data-del="${p.id}">🗑️</button>
+        </div></td></tr>`; }).join('')}
+      </tbody></table></div>`;
+  }else{
+    host.innerHTML=`<div class="cardgrid">${slice.map(p=>{ const st=status(p); return `
+      <div class="pcard">
+        <div class="thumb">${imgTag(p)}<span class="stbadge"><span class="pill ${st}">${STATUS_TXT[st]}</span></span></div>
+        <div class="body">
+          <div class="nm">${esc(p.name)}${p.trackSerial?'<span class="serial-flag">SN</span>':''}</div>
+          <div class="sk">${esc(p.sku)} · ${esc(p.cat)}</div>
+          <div class="figs"><div class="q">${p.qty}<small> ${esc(p.unit)}</small></div><div class="pr">${p.price?'฿'+baht(p.price):'—'}</div></div>
+        </div>
+        <div class="cardacts">
+          <button class="btn ghost sm" data-in="${p.id}">＋ รับ</button>
+          <button class="btn ghost sm" data-out="${p.id}">－ จ่าย</button>
+          <button class="btn ghost sm" data-edit="${p.id}">แก้ไข</button>
+        </div>
+      </div>`; }).join('')}</div>`;
+  }
+  host.querySelectorAll('[data-in]').forEach(b=>b.onclick=()=>openAdjust(+b.dataset.in,'in'));
+  host.querySelectorAll('[data-out]').forEach(b=>b.onclick=()=>openAdjust(+b.dataset.out,'out'));
+  host.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openProductForm(+b.dataset.edit));
+  host.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>openDelete(+b.dataset.del));
+  const from=(page-1)*PER+1, to=Math.min(page*PER,all.length);
+  let btns=''; const add=(n,lbl,dis,act)=>{ btns+=`<button ${dis?'disabled':''} class="${act?'active':''}" data-pg="${n}">${lbl}</button>`; };
+  add(page-1,'‹',page<=1,false);
+  const win=[]; for(let i=1;i<=pages;i++){ if(i===1||i===pages||Math.abs(i-page)<=1) win.push(i); else if(win[win.length-1]!=='…') win.push('…'); }
+  win.forEach(i=>{ if(i==='…') btns+=`<button disabled>…</button>`; else add(i,i,false,i===page); });
+  add(page+1,'›',page>=pages,false);
+  $('#prod-pager').innerHTML=`<div class="pager"><div class="info">แสดง ${from}–${to} จาก ${all.length} รายการ</div><div class="pages">${btns}</div></div>`;
+  $('#prod-pager').querySelectorAll('[data-pg]').forEach(b=>{ if(!b.disabled) b.onclick=()=>{ page=+b.dataset.pg; drawList(); window.scrollTo({top:0,behavior:'smooth'}); }; });
+}
+
+/* ============ HISTORY ============ */
+function renderHistory(){
+  const sec=$('#page-history'); const H=DB.history;
+  sec.innerHTML=`
+  <div class="page-head"><div><h2>ประวัติการเคลื่อนไหว</h2><p>${H.length} รายการล่าสุด</p></div>
+    <div style="flex:1"></div>
+    ${H.length?`<button class="btn ghost sm" id="h-clear">ล้างประวัติ</button>`:''}
+  </div>
+  <div class="panel"><div class="panel-body">
+    ${H.length? H.map(h=>{
+      const dir=h.type==='in'?'in':h.type==='out'?'out':h.type==='add'?'add':h.type==='del'?'del':'edit';
+      const ic=h.type==='in'?'📥':h.type==='out'?'📤':h.type==='add'?'➕':h.type==='del'?'🗑️':'✏️';
+      const sign=h.type==='in'?'+':h.type==='out'?'−':'';
+      const label=h.type==='in'?'รับเข้า':h.type==='out'?'จ่ายออก':h.type==='add'?'เพิ่มสินค้าใหม่':h.type==='del'?'ลบสินค้า':'แก้ไขข้อมูล';
+      return `<div class="hist-row">
+        <div class="hist-ic ${dir}">${ic}</div>
+        <div class="hist-main">
+          <div class="t1">${esc(h.name)} <span style="color:var(--ink-soft);font-weight:500">· ${label}</span></div>
+          <div class="t2">${esc(h.sku)}${h.before!=null?` · ${h.before} → ${h.after}`:''}${h.note?` · ${esc(h.note)}`:''}</div>
+        </div>
+        <div class="hist-right">
+          ${(h.type==='in'||h.type==='out')?`<div class="delta" style="font-family:var(--mono);font-weight:700;font-size:15px;color:${dir==='in'?'var(--ok)':'var(--out)'}">${sign}${h.qty}</div>`:''}
+          <div class="when">${fullTime(h.ts)}</div>
+        </div>
+      </div>`; }).join('') : `<div class="empty">ยังไม่มีประวัติการเคลื่อนไหว</div>`}
+  </div></div>`;
+  const c=$('#h-clear'); if(c) c.onclick=()=>confirmBox('ล้างประวัติทั้งหมด?','ลบประวัติในชีตถาวร ข้อมูลสินค้าไม่กระทบ','ล้างประวัติ',async()=>{
+    try{ await withBusy(()=>apiPost('clearHistory')); toast('ล้างประวัติแล้ว','ok'); await refresh(); }
+    catch(err){ toast('ล้มเหลว: '+err.message,'bad'); }
+  });
+}
+
+/* ============ MODAL CORE ============ */
+function modal(html){
+  const root=$('#modal-root'); root.innerHTML=`<div class="overlay">${html}</div>`;
+  const ov=root.firstElementChild; ov.onclick=e=>{ if(e.target===ov) closeModal(); };
+  document.addEventListener('keydown',escClose); return ov;
+}
+function closeModal(){ $('#modal-root').innerHTML=''; document.removeEventListener('keydown',escClose); }
+function escClose(e){ if(e.key==='Escape') closeModal(); }
+function confirmBox(title,msg,okLabel,onOk,danger=true){
+  modal(`<div class="modal sm">
+    <div class="modal-h"><h3>${esc(title)}</h3><button class="x" data-x>×</button></div>
+    <div class="modal-b"><p style="margin:0;color:var(--ink-soft);font-size:14px">${esc(msg)}</p></div>
+    <div class="modal-f"><button class="btn ghost" data-x>ยกเลิก</button><button class="btn ${danger?'danger':'primary'}" data-ok>${esc(okLabel)}</button></div>
+  </div>`);
+  $$('#modal-root [data-x]').forEach(b=>b.onclick=closeModal);
+  $('#modal-root [data-ok]').onclick=()=>{ closeModal(); onOk(); };
+}
+
+/* ============ STOCK IN/OUT ============ */
+function openAdjust(id,dir){
+  const p=DB.products.find(x=>x.id===id); if(!p) return;
+  let amt=1; const isIn=dir==='in';
+  modal(`<div class="modal sm">
+    <div class="modal-h"><h3>${isIn?'📥 รับเข้าสต๊อก':'📤 จ่ายออกสต๊อก'}</h3><button class="x" data-x>×</button></div>
+    <div class="modal-b">
+      <div class="li" style="border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:6px">
+        <div class="ava">${avatar(p)}</div>
+        <div class="meta"><div class="nm">${esc(p.name)}</div><div class="sk">${esc(p.sku)} · ${esc(p.cat)}</div></div>
+      </div>
+      <div class="adjbig">
+        <div class="cur">คงเหลือปัจจุบัน</div>
+        <div><span class="num">${p.qty}</span><span class="arrow">→</span><span class="num next" id="adj-next">${p.qty+(isIn?amt:-amt)}</span></div>
+        <div class="stepper"><button data-step="-1">−</button><input id="adj-amt" type="number" min="1" value="1"><button data-step="1">＋</button></div>
+        <div class="hint" id="adj-warn" style="color:var(--out)"></div>
+      </div>
+      <div class="field"><label>หมายเหตุ (ไม่บังคับ)</label><input id="adj-note" placeholder="${isIn?'เช่น รับจากซัพพลายเออร์':'เช่น เบิกไปอบรม / ขายให้ลูกค้า'}"></div>
+    </div>
+    <div class="modal-f"><button class="btn ghost" data-x>ยกเลิก</button><button class="btn ${isIn?'primary':''}" id="adj-ok" ${isIn?'':'style="background:var(--low);color:#fff"'}>ยืนยัน${isIn?'รับเข้า':'จ่ายออก'}</button></div>
+  </div>`);
+  const inp=$('#adj-amt'), nextEl=$('#adj-next'), warn=$('#adj-warn'), ok=$('#adj-ok');
+  function refreshUI(){
+    amt=Math.max(1,Math.floor(+inp.value||1)); inp.value=amt;
+    const after=isIn? p.qty+amt : p.qty-amt; nextEl.textContent=after;
+    if(!isIn && after<0){ warn.textContent='จำนวนจ่ายออกมากกว่าคงเหลือ'; ok.disabled=true; ok.style.opacity=.5; }
+    else { warn.textContent=''; ok.disabled=false; ok.style.opacity=1; }
+  }
+  $$('#modal-root [data-step]').forEach(b=>b.onclick=()=>{ inp.value=Math.max(1,(+inp.value||1)+(+b.dataset.step)); refreshUI(); });
+  inp.oninput=refreshUI; refreshUI();
+  $$('#modal-root [data-x]').forEach(b=>b.onclick=closeModal);
+  ok.onclick=async()=>{
+    const note=$('#adj-note').value.trim();
+    try{
+      const r=await withBusy(()=>apiPost('move',{id:p.id, type:isIn?'in':'out', amount:amt, note}));
+      p.qty=r.qty; closeModal();
+      toast(`${isIn?'รับเข้า':'จ่ายออก'} ${esc(p.name)} ${amt} ${esc(p.unit)}`,'ok');
+      await refresh();
+    }catch(err){ toast('ล้มเหลว: '+err.message,'bad'); }
+  };
+}
+
+/* ============ PRODUCT FORM ============ */
+let imgMode='emoji', imgTmp='';
+function openProductForm(id){
+  const editing=id!=null;
+  const src = editing? DB.products.find(x=>x.id===id) : null;
+  const p = editing? JSON.parse(JSON.stringify(src)) : { id:null, sku:'', name:'', cat:'', price:0, qty:0, unit:'ชิ้น', minQty:1, note:'', trackSerial:false, serials:[], img:'' };
+  if(!p.serials) p.serials=[];
+  imgTmp=p.img||'';
+  imgMode = (!p.img)?'emoji' : (p.img==='auto'||/^images\//.test(p.img))?'folder' : /^data:/.test(p.img)?'upload':'url';
+  const cats=[...new Set(DB.products.map(x=>x.cat))].sort();
+  modal(`<div class="modal">
+    <div class="modal-h"><h3>${editing?'แก้ไขสินค้า':'เพิ่มสินค้าใหม่'}</h3><button class="x" data-x>×</button></div>
+    <div class="modal-b">
+      <div class="field"><label>รูปสินค้า</label>
+        <div class="imgpick">
+          <div class="imgprev" id="img-prev"></div>
+          <div class="imgctrls">
+            <div class="segtabs"><button data-im="emoji">อิโมจิ</button><button data-im="folder">โฟลเดอร์</button><button data-im="upload">อัปโหลด</button><button data-im="url">URL</button></div>
+            <div id="img-area"></div>
+          </div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>SKU</label><input id="p-sku" value="${esc(p.sku)}" placeholder="เช่น MES-005"></div>
+        <div class="field"><label>หมวดหมู่</label><input id="p-cat" list="catlist" value="${esc(p.cat)}" placeholder="เลือกหรือพิมพ์ใหม่"><datalist id="catlist">${cats.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></div>
+      </div>
+      <div class="field"><label>ชื่อสินค้า</label><input id="p-name" value="${esc(p.name)}" placeholder="ชื่อสินค้า"></div>
+      <div class="grid2">
+        <div class="field"><label>ราคา (บาท)</label><input id="p-price" type="number" min="0" value="${p.price||0}"></div>
+        <div class="field"><label>หน่วยนับ</label><input id="p-unit" value="${esc(p.unit)}" placeholder="ชิ้น / ชุด / กล่อง"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>จำนวนคงเหลือ</label><input id="p-qty" type="number" min="0" value="${p.qty||0}" ${editing?'disabled style="opacity:.6;background:var(--surface-2)"':''}>${editing?'<div class="hint">ปรับจำนวนผ่านปุ่มรับเข้า/จ่ายออก</div>':''}</div>
+        <div class="field"><label>ขั้นต่ำแจ้งเตือน</label><input id="p-min" type="number" min="0" value="${p.minQty||0}"></div>
+      </div>
+      <div class="field" style="margin-bottom:8px"><label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-weight:600;color:var(--ink)"><input type="checkbox" id="p-serial" ${p.trackSerial?'checked':''} style="width:auto"> ติดตามหมายเลขเครื่อง (Serial Number)</label></div>
+      <div id="serial-wrap" class="${p.trackSerial?'':'hidden'}"></div>
+      <div class="field"><label>หมายเหตุ</label><textarea id="p-note" rows="2" placeholder="ไม่บังคับ">${esc(p.note||'')}</textarea></div>
+    </div>
+    <div class="modal-f">
+      ${editing?`<button class="btn danger" id="p-del" style="margin-right:auto">ลบสินค้า</button>`:''}
+      <button class="btn ghost" data-x>ยกเลิก</button>
+      <button class="btn primary" id="p-save">${editing?'บันทึกการแก้ไข':'เพิ่มสินค้า'}</button>
+    </div>
+  </div>`);
+  $$('#modal-root [data-x]').forEach(b=>b.onclick=closeModal);
+  function paintPrev(){
+    const pv=$('#img-prev');
+    const sku=($('#p-sku')&&$('#p-sku').value.trim())||p.sku;
+    const emoji=catEmoji(($('#p-cat')&&$('#p-cat').value)||p.cat);
+    if(imgTmp==='auto'){
+      if(sku) pv.innerHTML=`<img src="images/${encodeURIComponent(sku)}.${IMG_EXT[0]}" data-sku="${esc(sku)}" data-emoji="${esc(emoji)}" data-try="0" onerror="imgFB(this)" alt="">`;
+      else pv.textContent=emoji;
+    } else if(imgTmp){ pv.innerHTML=`<img src="${esc(imgTmp)}" data-emoji="${esc(emoji)}" onerror="imgFBemoji(this)" alt="">`; }
+    else pv.textContent=emoji;
+  }
+  function paintImgArea(){
+    $$('#modal-root [data-im]').forEach(b=>b.classList.toggle('active',b.dataset.im===imgMode));
+    const a=$('#img-area');
+    if(imgMode==='emoji'){ a.innerHTML=`<div class="hint">ใช้สัญลักษณ์ตามหมวดหมู่อัตโนมัติ (${catEmoji($('#p-cat').value||p.cat)})</div>`; imgTmp=''; paintPrev(); }
+    else if(imgMode==='folder'){
+      const isAuto = (imgTmp==='auto' || imgTmp==='');
+      const fname = /^images\//.test(imgTmp)? imgTmp.replace(/^images\//,'') : '';
+      a.innerHTML=`
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;margin-bottom:8px">
+          <input type="checkbox" id="img-auto" ${isAuto?'checked':''} style="width:auto"> เดารูปอัตโนมัติจาก SKU (แนะนำ)
+        </label>
+        <input id="img-file" placeholder="เช่น BPM-001.jpg" value="${esc(fname)}" ${isAuto?'disabled style="opacity:.5"':''}>
+        <div class="hint">วางไฟล์รูปไว้ในโฟลเดอร์ <b>images/</b> ข้างไฟล์ระบบ — แบบอัตโนมัติจะมองหา <span class="mono">images/&lt;SKU&gt;.jpg/.png/...</span></div>`;
+      const setAuto=()=>{ imgTmp='auto'; paintPrev(); };
+      if(isAuto && !imgTmp) imgTmp='auto';
+      $('#img-auto').onchange=e=>{
+        const f=$('#img-file');
+        if(e.target.checked){ f.disabled=true; f.style.opacity=.5; setAuto(); }
+        else { f.disabled=false; f.style.opacity=1; imgTmp = f.value.trim()? 'images/'+f.value.trim() : ''; paintPrev(); }
+      };
+      $('#img-file').oninput=e=>{ imgTmp = e.target.value.trim()? 'images/'+e.target.value.trim() : ''; paintPrev(); };
+    }
+    else if(imgMode==='url'){ a.innerHTML=`<input id="img-url" placeholder="วางลิงก์รูป https://..." value="${/^https?:/.test(imgTmp)?esc(imgTmp):''}"><div class="hint">วางลิงก์รูปจากอินเทอร์เน็ต</div>`; $('#img-url').oninput=e=>{ imgTmp=e.target.value.trim(); paintPrev(); }; }
+    else { a.innerHTML=`<button class="btn ghost block" id="img-up">📁 เลือกไฟล์รูปจากเครื่อง</button><div class="hint">ย่อขนาดอัตโนมัติแล้วฝังในชีต — เหมาะกับรูปเล็ก ถ้ารูปเยอะแนะนำใช้โหมดโฟลเดอร์</div>`; $('#img-up').onclick=()=>pickFile(); }
+  }
+  $$('#modal-root [data-im]').forEach(b=>b.onclick=()=>{ imgMode=b.dataset.im; paintImgArea(); });
+  paintImgArea(); paintPrev();
+  $('#p-cat').oninput=()=>{ if(imgMode==='emoji') paintImgArea(); paintPrev(); };
+  window._onFile=(dataUrl)=>{ imgTmp=dataUrl; imgMode='upload'; paintPrev(); toast('แนบรูปแล้ว','ok'); };
+  function paintSerials(){
+    const w=$('#serial-wrap'); if(!$('#p-serial').checked){ w.classList.add('hidden'); return; }
+    w.classList.remove('hidden'); const rows=p.serials||[];
+    w.innerHTML=`<div class="field"><label>หมายเลขเครื่อง (${rows.length})</label>
+      <div class="serial-box"><table><thead><tr><th>Machine SN</th><th>Battery SN</th><th style="width:34px"></th></tr></thead><tbody>
+        ${rows.map((s,i)=>`<tr><td><input data-sn="${i}" data-k="machineSn" value="${esc(s.machineSn||'')}"></td><td><input data-sn="${i}" data-k="batterySn" value="${esc(s.batterySn||'')}"></td><td><button class="iconbtn del" data-rm="${i}" style="width:26px;height:26px">×</button></td></tr>`).join('')}
+      </tbody></table><div class="serial-add"><button class="btn ghost sm" id="sn-add">＋ เพิ่มหมายเลข</button></div></div></div>`;
+    w.querySelectorAll('[data-sn]').forEach(inp=>inp.oninput=e=>{ p.serials[+e.target.dataset.sn][e.target.dataset.k]=e.target.value; });
+    w.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{ p.serials.splice(+b.dataset.rm,1); paintSerials(); });
+    $('#sn-add').onclick=()=>{ p.serials.push({machineSn:'',batterySn:'',date:'',note:''}); paintSerials(); };
+  }
+  $('#p-serial').onchange=()=>{ if($('#p-serial').checked && !p.serials.length) p.serials.push({machineSn:'',batterySn:'',date:'',note:''}); paintSerials(); };
+  paintSerials();
+  const dl=$('#p-del'); if(dl) dl.onclick=()=>{ closeModal(); openDelete(id); };
+  $('#p-save').onclick=async()=>{
+    const sku=$('#p-sku').value.trim(), name=$('#p-name').value.trim(), cat=$('#p-cat').value.trim();
+    if(!name){ toast('กรุณากรอกชื่อสินค้า','bad'); return; }
+    if(!cat){ toast('กรุณาเลือก/กรอกหมวดหมู่','bad'); return; }
+    const dupe=DB.products.find(x=>x.sku && x.sku===sku && x.id!==id);
+    if(sku && dupe){ toast('SKU นี้มีอยู่แล้ว','bad'); return; }
+    const data={
+      id: editing? id : null,
+      sku: sku || (editing? p.sku : nextSku('MSC')),
+      name, cat,
+      price:Math.max(0,+$('#p-price').value||0),
+      unit:$('#p-unit').value.trim()||'ชิ้น',
+      minQty:Math.max(0,+$('#p-min').value||0),
+      note:$('#p-note').value.trim(),
+      trackSerial:$('#p-serial').checked,
+      serials:$('#p-serial').checked? p.serials.filter(s=>s.machineSn||s.batterySn) : [],
+      img:imgTmp,
+      qty: editing? src.qty : Math.max(0,+$('#p-qty').value||0)
+    };
+    try{
+      await withBusy(()=>apiPost('upsert',{product:data}));
+      closeModal();
+      toast(editing?'บันทึกการแก้ไขแล้ว':'เพิ่มสินค้าแล้ว','ok');
+      await refresh();
+    }catch(err){ toast('บันทึกไม่สำเร็จ: '+err.message,'bad'); }
+  };
+}
+
+/* ============ DELETE ============ */
+function openDelete(id){
+  const p=DB.products.find(x=>x.id===id); if(!p) return;
+  confirmBox('ลบสินค้า?', `ต้องการลบ "${p.name}" (${p.sku}) ออกจากชีตถาวรหรือไม่`, 'ลบสินค้า', async()=>{
+    try{ await withBusy(()=>apiPost('delete',{id})); toast('ลบสินค้าแล้ว','ok'); await refresh(); }
+    catch(err){ toast('ลบไม่สำเร็จ: '+err.message,'bad'); }
+  });
+}
+
+/* ============ FILE PICKER + RESIZE ============ */
+function pickFile(){ $('#hidden-file').value=''; $('#hidden-file').click(); }
+$('#hidden-file').addEventListener('change',function(){
+  const file=this.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const max=300; let w=img.width,h=img.height;
+      if(w>h && w>max){ h=h*max/w; w=max; } else if(h>max){ w=w*max/h; h=max; }
+      const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      const out=cv.toDataURL('image/jpeg',0.7);
+      if(out.length>48000){ toast('รูปใหญ่เกินไปสำหรับเก็บในชีต — แนะนำใช้โหมดโฟลเดอร์','bad'); return; }
+      if(window._onFile) window._onFile(out);
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+/* ============ BACKUP / RESTORE ============ */
+function openBackup(){
+  modal(`<div class="modal sm">
+    <div class="modal-h"><h3>สำรอง / กู้คืนข้อมูล</h3><button class="x" data-x>×</button></div>
+    <div class="modal-b">
+      <p style="margin:0 0 14px;color:var(--ink-soft);font-size:13.5px">ดาวน์โหลดสำเนาข้อมูลจากชีต หรือเขียนข้อมูลจากไฟล์ .json กลับขึ้นชีต</p>
+      <button class="btn primary block" id="bk-down" style="margin-bottom:10px">⬇ ดาวน์โหลดไฟล์สำรอง (.json)</button>
+      <button class="btn ghost block" id="bk-up" style="margin-bottom:10px">⬆ กู้คืนขึ้นชีต (จากไฟล์ .json)</button>
+      <button class="btn ghost block" id="bk-xlsx">📊 ส่งออกเป็น CSV (เปิดใน Excel)</button>
+      <input type="file" id="bk-file" accept=".json,application/json" class="hidden">
+    </div>
+    <div class="modal-f"><button class="btn ghost" data-x>ปิด</button></div>
+  </div>`);
+  $$('#modal-root [data-x]').forEach(b=>b.onclick=closeModal);
+  $('#bk-down').onclick=()=>{
+    const data={ exportedAt:new Date().toISOString().slice(0,10), company:'บริษัท เจี๋ยรักษา', products:DB.products, history:DB.history };
+    download(JSON.stringify(data,null,2), `stock_backup_${new Date().toISOString().slice(0,10)}.json`, 'application/json');
+    toast('ดาวน์โหลดแล้ว','ok');
+  };
+  $('#bk-up').onclick=()=>$('#bk-file').click();
+  $('#bk-file').onchange=function(){
+    const f=this.files[0]; if(!f) return; const r=new FileReader();
+    r.onload=e=>{ try{
+      const d=JSON.parse(e.target.result); if(!Array.isArray(d.products)) throw 0;
+      confirmBox('เขียนทับชีต?',`ไฟล์มีสินค้า ${d.products.length} รายการ — ข้อมูลสินค้าในชีตจะถูกแทนที่ทั้งหมด`,'เขียนขึ้นชีต',async()=>{
+        try{ await withBusy(()=>apiPost('bulkImport',{products:d.products})); toast('กู้คืนขึ้นชีตแล้ว','ok'); await refresh(); }
+        catch(err){ toast('ล้มเหลว: '+err.message,'bad'); }
+      },false);
+    }catch(err){ toast('ไฟล์ไม่ถูกต้อง','bad'); } };
+    r.readAsText(f);
+  };
+  $('#bk-xlsx').onclick=()=>{
+    const head=['SKU','ชื่อสินค้า','หมวดหมู่','ราคา','คงเหลือ','หน่วย','ขั้นต่ำ','สถานะ','หมายเหตุ'];
+    const rows=DB.products.map(p=>[p.sku,p.name,p.cat,p.price,p.qty,p.unit,p.minQty,STATUS_TXT[status(p)],p.note||'']);
+    const csv='\uFEFF'+[head,...rows].map(r=>r.map(c=>`"${String(c==null?'':c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+    download(csv,`stock_export_${new Date().toISOString().slice(0,10)}.csv`,'text/csv;charset=utf-8'); toast('ส่งออก CSV แล้ว','ok');
+  };
+}
+function download(content,name,type){
+  const blob=new Blob([content],{type}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+/* ============ BOOT ============ */
+function boot(){
+  $$('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.page));
+  $('#btn-logout').onclick=()=>confirmBox('ออกจากระบบ?','คุณต้องการออกจากระบบหรือไม่','ออกจากระบบ',logout,false);
+  $('#btn-backup').onclick=openBackup;
+  $('#btn-refresh').onclick=()=>refresh();
+  $('#conn-retry').onclick=()=>refresh();
+  go('dashboard');
+  refresh();
+}
+
+/* ============ START ============ */
+$('#lg-btn').onclick=doLogin;
+$('#lg-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+$('#lg-user').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#lg-pass').focus(); });
+if(sessGet()==='1'){ $('#login').classList.add('hidden'); $('#app').classList.remove('hidden'); boot(); }
+else { $('#lg-user').focus(); }
+
+</script>
+</body>
+</html>
